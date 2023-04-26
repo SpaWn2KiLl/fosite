@@ -1,23 +1,5 @@
-/*
- * Copyright © 2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @author		Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @copyright 	2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @license 	Apache-2.0
- *
- */
+// Copyright © 2023 Ory Corp
+// SPDX-License-Identifier: Apache-2.0
 
 package fosite
 
@@ -157,27 +139,26 @@ func (f *Fosite) WriteIntrospectionError(ctx context.Context, rw http.ResponseWr
 // make authorization decisions.  See Section 4 for more information
 // regarding the trade off when the response is cached.
 //
-//
 // For example, the following response contains a set of information
 // about an active token:
 //
 // The following is a non-normative example response:
 //
-//	 HTTP/1.1 200 OK
-//	 Content-Type: application/json
+//	HTTP/1.1 200 OK
+//	Content-Type: application/json
 //
-//	 {
-//	   "active": true,
-//	   "client_id": "l238j323ds-23ij4",
-//	   "username": "jdoe",
-//	   "scope": "read write dolphin",
-//	   "sub": "Z5O3upPC88QrAjx00dis",
-//	   "aud": "https://protected.example.net/resource",
-//	   "iss": "https://server.example.com/",
-//	   "exp": 1419356238,
-//	   "iat": 1419350238,
-//	   "extension_field": "twenty-seven"
-//	 }
+//	{
+//	  "active": true,
+//	  "client_id": "l238j323ds-23ij4",
+//	  "username": "jdoe",
+//	  "scope": "read write dolphin",
+//	  "sub": "Z5O3upPC88QrAjx00dis",
+//	  "aud": "https://protected.example.net/resource",
+//	  "iss": "https://server.example.com/",
+//	  "exp": 1419356238,
+//	  "iat": 1419350238,
+//	  "extension_field": "twenty-seven"
+//	}
 //
 // If the introspection call is properly authorized but the token is not
 // active, does not exist on this server, or the protected resource is
@@ -191,12 +172,12 @@ func (f *Fosite) WriteIntrospectionError(ctx context.Context, rw http.ResponseWr
 // The following is a non-normative example response for a token that
 // has been revoked or is otherwise invalid:
 //
-//	 HTTP/1.1 200 OK
-//	 Content-Type: application/json
+//	HTTP/1.1 200 OK
+//	Content-Type: application/json
 //
-//	 {
-//	   "active": false
-//	 }
+//	{
+//	  "active": false
+//	}
 func (f *Fosite) WriteIntrospectionResponse(ctx context.Context, rw http.ResponseWriter, r IntrospectionResponder) {
 	if !r.IsActive() {
 		_ = json.NewEncoder(rw).Encode(&struct {

@@ -1,23 +1,5 @@
-/*
- * Copyright © 2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @author		Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @copyright 	2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @license 	Apache-2.0
- *
- */
+// Copyright © 2023 Ory Corp
+// SPDX-License-Identifier: Apache-2.0
 
 package fosite_test
 
@@ -39,10 +21,10 @@ import (
 
 // Should pass
 //
-// * https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#Terminology
-//   The OAuth 2.0 specification allows for registration of space-separated response_type parameter values.
-//   If a Response Type contains one of more space characters (%20), it is compared as a space-delimited list of
-//   values in which the order of values does not matter.
+//   - https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#Terminology
+//     The OAuth 2.0 specification allows for registration of space-separated response_type parameter values.
+//     If a Response Type contains one of more space characters (%20), it is compared as a space-delimited list of
+//     values in which the order of values does not matter.
 func TestNewAuthorizeRequest(t *testing.T) {
 	var store *MockStorage
 

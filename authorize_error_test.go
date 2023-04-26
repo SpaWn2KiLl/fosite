@@ -1,23 +1,5 @@
-/*
- * Copyright © 2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @author		Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @copyright 	2015-2018 Aeneas Rekkas <aeneas+oss@aeneas.io>
- * @license 	Apache-2.0
- *
- */
+// Copyright © 2023 Ory Corp
+// SPDX-License-Identifier: Apache-2.0
 
 package fosite_test
 
@@ -36,19 +18,19 @@ import (
 )
 
 // Test for
-// * https://tools.ietf.org/html/rfc6749#section-4.1.2.1
-//   If the request fails due to a missing, invalid, or mismatching
-//   redirection URI, or if the client identifier is missing or invalid,
-//   the authorization server SHOULD inform the resource owner of the
-//   error and MUST NOT automatically redirect the user-agent to the
-//   invalid redirection URI.
-// * https://tools.ietf.org/html/rfc6749#section-3.1.2
-//   The redirection endpoint URI MUST be an absolute URI as defined by
-//   [RFC3986] Section 4.3.  The endpoint URI MAY include an
-//   "application/x-www-form-urlencoded" formatted (per Appendix B) query
-//   component ([RFC3986] Section 3.4), which MUST be retained when adding
-//   additional query parameters.  The endpoint URI MUST NOT include a
-//   fragment component.
+//   - https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+//     If the request fails due to a missing, invalid, or mismatching
+//     redirection URI, or if the client identifier is missing or invalid,
+//     the authorization server SHOULD inform the resource owner of the
+//     error and MUST NOT automatically redirect the user-agent to the
+//     invalid redirection URI.
+//   - https://tools.ietf.org/html/rfc6749#section-3.1.2
+//     The redirection endpoint URI MUST be an absolute URI as defined by
+//     [RFC3986] Section 4.3.  The endpoint URI MAY include an
+//     "application/x-www-form-urlencoded" formatted (per Appendix B) query
+//     component ([RFC3986] Section 3.4), which MUST be retained when adding
+//     additional query parameters.  The endpoint URI MUST NOT include a
+//     fragment component.
 func TestWriteAuthorizeError(t *testing.T) {
 	var urls = []string{
 		"https://foobar.com/",
