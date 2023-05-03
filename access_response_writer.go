@@ -5,6 +5,7 @@ package fosite
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ory/x/errorsx"
 
@@ -21,6 +22,7 @@ func (f *Fosite) NewAccessResponse(ctx context.Context, requester AccessRequeste
 	ctx = context.WithValue(ctx, AccessResponseContextKey, response)
 
 	for _, tk = range f.Config.GetTokenEndpointHandlers(ctx) {
+		fmt.Printf("%T: %+v\n", tk, requester)
 		if err = tk.PopulateTokenEndpointResponse(ctx, requester, response); err == nil {
 			// do nothing
 		} else if errors.Is(err, ErrUnknownRequest) {
