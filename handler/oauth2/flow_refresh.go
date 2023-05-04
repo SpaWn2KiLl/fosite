@@ -6,7 +6,6 @@ package oauth2
 import (
 	"context"
 	"fmt"
-	"github.com/ory/fosite/token/jwt"
 	"github.com/pborman/uuid"
 	"strings"
 	"time"
@@ -79,22 +78,7 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 		return errorsx.WithStack(fosite.ErrInvalidGrant.WithHint("The OAuth 2.0 Client ID from this request does not match the ID during the initial token issuance."))
 	}
 
-	type Session interface {
-		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenClaims() *jwt.IDTokenClaims
-		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenHeaders() *jwt.Headers
-
-		fosite.Session
-	}
-
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(Session).IDTokenClaims())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
-	request.SetSession(originalRequest.GetSession().Clone())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(Session).IDTokenClaims())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
+	request.SetSession(originalRequest.GetSession())
 	request.SetRequestedScopes(originalRequest.GetRequestedScopes())
 	request.SetRequestedAudience(originalRequest.GetRequestedAudience())
 
@@ -120,9 +104,8 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 	if rtLifespan > -1 {
 		request.GetSession().SetExpiresAt(fosite.RefreshToken, time.Now().UTC().Add(rtLifespan).Round(time.Second))
 	}
-
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains - Ending (request): %+v\n", request.GetSession())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains - Ending (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
+	
+	request.SetID(uuid.New())
 
 	return nil
 }
@@ -153,8 +136,7 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 		err = c.handleRefreshTokenEndpointStorageError(ctx, err)
 	}()
 
-	sess := new(fosite.Session)
-	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, *sess)
+	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, nil)
 	if err != nil {
 		return err
 	} else if err := c.TokenRevocationStorage.RevokeAccessToken(ctx, ts.GetID()); err != nil {
@@ -166,10 +148,7 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	}
 
 	storeReq := requester.Sanitize([]string{})
-	storeReq.SetID(uuid.New())
 
-	fmt.Printf("x session: %+v\n", *sess)
-	fmt.Printf("Original session: %+v\n", ts.GetSession())
 	fmt.Printf("Refreshed token session: %+v\n", storeReq.GetSession())
 
 	if err = c.TokenRevocationStorage.CreateAccessTokenSession(ctx, accessSignature, storeReq); err != nil {
