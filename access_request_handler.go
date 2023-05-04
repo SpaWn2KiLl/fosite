@@ -6,7 +6,7 @@ package fosite
 import (
 	"context"
 	"fmt"
-	"github.com/ory/fosite/handler/openid"
+	"github.com/ory/fosite/token/jwt"
 	"net/http"
 	"strings"
 
@@ -102,8 +102,19 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 			return accessRequest, err
 		}
 	}
+
+
+	type Session interface {
+		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenClaims() *jwt.IDTokenClaims
+		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenHeaders() *jwt.Headers
+	}
+
 	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", accessRequest.GetSession(), accessRequest.GetSession())
-	fmt.Printf("NewAccessRequest (Very ending - claims): %+v\n", accessRequest.GetSession().(openid.Session).IDTokenClaims())
+	fmt.Printf("NewAccessRequest (Very ending - claims): %+v\n", accessRequest.GetSession().(Session).IDTokenClaims())
 
 	if !found {
 		return nil, errorsx.WithStack(ErrInvalidRequest)
