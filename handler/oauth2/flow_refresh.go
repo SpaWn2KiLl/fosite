@@ -6,7 +6,7 @@ package oauth2
 import (
 	"context"
 	"fmt"
-	"github.com/ory/fosite/handler/openid"
+	"github.com/ory/fosite/token/jwt"
 	"github.com/pborman/uuid"
 	"strings"
 	"time"
@@ -79,11 +79,22 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 		return errorsx.WithStack(fosite.ErrInvalidGrant.WithHint("The OAuth 2.0 Client ID from this request does not match the ID during the initial token issuance."))
 	}
 
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(openid.Session).IDTokenClaims())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(openid.Session).IDTokenClaims())
+	type Session interface {
+		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenClaims() *jwt.IDTokenClaims
+		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenHeaders() *jwt.Headers
+
+		fosite.Session
+	}
+
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(Session).IDTokenClaims())
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
 	request.SetSession(originalRequest.GetSession().Clone())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(openid.Session).IDTokenClaims())
-	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(openid.Session).IDTokenClaims())
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (originalRequest): %+v\n", originalRequest.GetSession().(Session).IDTokenClaims())
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
 	request.SetRequestedScopes(originalRequest.GetRequestedScopes())
 	request.SetRequestedAudience(originalRequest.GetRequestedAudience())
 
