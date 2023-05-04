@@ -147,6 +147,9 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	storeReq := requester.Sanitize([]string{})
 	storeReq.SetID(ts.GetID())
 
+	fmt.Printf("Original session: %+v\n", ts.GetSession())
+	fmt.Printf("Refreshed token session: %+v\n", storeReq.GetSession())
+
 	if err = c.TokenRevocationStorage.CreateAccessTokenSession(ctx, accessSignature, storeReq); err != nil {
 		return err
 	}
