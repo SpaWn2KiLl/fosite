@@ -78,7 +78,7 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 		return errorsx.WithStack(fosite.ErrInvalidGrant.WithHint("The OAuth 2.0 Client ID from this request does not match the ID during the initial token issuance."))
 	}
 
-	request.SetSession(originalRequest.GetSession())
+	request.SetSession(originalRequest.GetSession().Clone())
 	request.SetRequestedScopes(originalRequest.GetRequestedScopes())
 	request.SetRequestedAudience(originalRequest.GetRequestedAudience())
 
@@ -148,8 +148,6 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	}
 
 	storeReq := requester.Sanitize([]string{})
-
-	fmt.Printf("Refreshed token session: %+v\n", storeReq.GetSession())
 
 	if err = c.TokenRevocationStorage.CreateAccessTokenSession(ctx, accessSignature, storeReq); err != nil {
 		return err

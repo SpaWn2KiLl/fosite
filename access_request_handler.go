@@ -5,8 +5,6 @@ package fosite
 
 import (
 	"context"
-	"fmt"
-	"github.com/ory/fosite/token/jwt"
 	"net/http"
 	"strings"
 
@@ -73,20 +71,8 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 		accessRequest.Client = client
 	}
 
-
-	type Session interface {
-		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenClaims() *jwt.IDTokenClaims
-		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenHeaders() *jwt.Headers
-	}
-
 	var found = false
 	for _, loader := range f.Config.GetTokenEndpointHandlers(ctx) {
-		fmt.Printf("NewAccessRequest (beginning) - %T - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
-		fmt.Printf("NewAccessRequest (beginning - claims) - %T: %+v\n", loader, accessRequest.GetSession().(Session).IDTokenClaims())
 		// Is the loader responsible for handling the request?
 		if !loader.CanHandleTokenEndpointRequest(ctx, accessRequest) {
 			continue
@@ -107,15 +93,11 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 			// This is a duplicate because it should already have been handled by
 			// `loader.CanHandleTokenEndpointRequest(accessRequest)` but let's keep it for sanity.
 			//
-			fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
 			continue
 		} else if err != nil {
 			return accessRequest, err
 		}
 	}
-
-	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", accessRequest.GetSession(), accessRequest.GetSession())
-	fmt.Printf("NewAccessRequest (Very ending - claims): %+v\n", accessRequest.GetSession().(Session).IDTokenClaims())
 
 	if !found {
 		return nil, errorsx.WithStack(ErrInvalidRequest)
