@@ -134,8 +134,8 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 		err = c.handleRefreshTokenEndpointStorageError(ctx, err)
 	}()
 
-	x := new(fosite.Session)
-	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, *x)
+	sess := new(fosite.Session)
+	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, *sess)
 	if err != nil {
 		return err
 	} else if err := c.TokenRevocationStorage.RevokeAccessToken(ctx, ts.GetID()); err != nil {
@@ -149,7 +149,7 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	storeReq := requester.Sanitize([]string{})
 	storeReq.SetID(uuid.New())
 
-	fmt.Printf("x session: %+v\n", x)
+	fmt.Printf("x session: %+v\n", *sess)
 	fmt.Printf("Original session: %+v\n", ts.GetSession())
 	fmt.Printf("Refreshed token session: %+v\n", storeReq.GetSession())
 
