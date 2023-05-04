@@ -73,9 +73,20 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 		accessRequest.Client = client
 	}
 
+
+	type Session interface {
+		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenClaims() *jwt.IDTokenClaims
+		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
+		// Session should store this pointer and return always the same pointer.
+		IDTokenHeaders() *jwt.Headers
+	}
+
 	var found = false
 	for _, loader := range f.Config.GetTokenEndpointHandlers(ctx) {
 		fmt.Printf("NewAccessRequest (beginning) - %T - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
+		fmt.Printf("NewAccessRequest (beginning - claims) - %T: %+v\n", loader, accessRequest.GetSession().(Session).IDTokenClaims())
 		// Is the loader responsible for handling the request?
 		if !loader.CanHandleTokenEndpointRequest(ctx, accessRequest) {
 			continue
@@ -101,16 +112,6 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 		} else if err != nil {
 			return accessRequest, err
 		}
-	}
-
-
-	type Session interface {
-		// IDTokenClaims returns a pointer to claims which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenClaims() *jwt.IDTokenClaims
-		// IDTokenHeaders returns a pointer to header values which will be modified in-place by handlers.
-		// Session should store this pointer and return always the same pointer.
-		IDTokenHeaders() *jwt.Headers
 	}
 
 	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", accessRequest.GetSession(), accessRequest.GetSession())
