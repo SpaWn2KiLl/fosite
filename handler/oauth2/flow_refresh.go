@@ -121,6 +121,9 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 		request.GetSession().SetExpiresAt(fosite.RefreshToken, time.Now().UTC().Add(rtLifespan).Round(time.Second))
 	}
 
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains - Ending (request): %+v\n", request.GetSession())
+	fmt.Printf("Refresh Token Grant Handler session ID Token Clains - Ending (request): %+v\n", request.GetSession().(Session).IDTokenClaims())
+
 	return nil
 }
 
