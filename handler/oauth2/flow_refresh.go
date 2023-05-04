@@ -134,8 +134,8 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 		err = c.handleRefreshTokenEndpointStorageError(ctx, err)
 	}()
 
-	var x fosite.Session
-	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, x)
+	x := new(fosite.Session)
+	ts, err := c.TokenRevocationStorage.GetRefreshTokenSession(ctx, signature, *x)
 	if err != nil {
 		return err
 	} else if err := c.TokenRevocationStorage.RevokeAccessToken(ctx, ts.GetID()); err != nil {
