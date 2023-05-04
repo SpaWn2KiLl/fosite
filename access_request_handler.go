@@ -74,7 +74,7 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 
 	var found = false
 	for _, loader := range f.Config.GetTokenEndpointHandlers(ctx) {
-		fmt.Printf("NewAccessRequest - %T: %+v\n", loader, session)
+		fmt.Printf("NewAccessRequest - %T - %T: %+v\n", loader, session, session)
 		// Is the loader responsible for handling the request?
 		if !loader.CanHandleTokenEndpointRequest(ctx, accessRequest) {
 			continue
