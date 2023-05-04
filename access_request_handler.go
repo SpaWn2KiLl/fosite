@@ -74,7 +74,7 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 
 	var found = false
 	for _, loader := range f.Config.GetTokenEndpointHandlers(ctx) {
-		fmt.Printf("NewAccessRequest (beginning) - %T - %T: %+v\n", loader, session, session)
+		fmt.Printf("NewAccessRequest (beginning) - %T - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
 		// Is the loader responsible for handling the request?
 		if !loader.CanHandleTokenEndpointRequest(ctx, accessRequest) {
 			continue
@@ -95,14 +95,14 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 			// This is a duplicate because it should already have been handled by
 			// `loader.CanHandleTokenEndpointRequest(accessRequest)` but let's keep it for sanity.
 			//
-			fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, session, session)
+			fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
 			continue
 		} else if err != nil {
 			return accessRequest, err
 		}
-		fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, session, session)
+		fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
 	}
-	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", session, session)
+	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", accessRequest.GetSession(), accessRequest.GetSession())
 
 	if !found {
 		return nil, errorsx.WithStack(ErrInvalidRequest)
