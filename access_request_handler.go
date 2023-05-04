@@ -6,6 +6,7 @@ package fosite
 import (
 	"context"
 	"fmt"
+	"github.com/ory/fosite/handler/openid"
 	"net/http"
 	"strings"
 
@@ -100,9 +101,9 @@ func (f *Fosite) NewAccessRequest(ctx context.Context, r *http.Request, session 
 		} else if err != nil {
 			return accessRequest, err
 		}
-		fmt.Printf("NewAccessRequest (Loop ending) - %T  - %T: %+v\n", loader, accessRequest.GetSession(), accessRequest.GetSession())
 	}
 	fmt.Printf("NewAccessRequest (Very ending) - %T: %+v\n", accessRequest.GetSession(), accessRequest.GetSession())
+	fmt.Printf("NewAccessRequest (Very ending - claims): %+v\n", accessRequest.GetSession().(openid.Session).IDTokenClaims())
 
 	if !found {
 		return nil, errorsx.WithStack(ErrInvalidRequest)
