@@ -6,6 +6,7 @@ package oauth2
 import (
 	"context"
 	"fmt"
+	"github.com/pborman/uuid"
 	"strings"
 	"time"
 
@@ -146,8 +147,9 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	}
 
 	storeReq := requester.Sanitize([]string{})
-	storeReq.SetID(ts.GetID())
+	storeReq.SetID(uuid.New())
 
+	fmt.Printf("x session: %+v\n", x)
 	fmt.Printf("Original session: %+v\n", ts.GetSession())
 	fmt.Printf("Refreshed token session: %+v\n", storeReq.GetSession())
 
