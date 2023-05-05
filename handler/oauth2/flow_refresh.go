@@ -6,6 +6,7 @@ package oauth2
 import (
 	"context"
 	"fmt"
+	"github.com/pborman/uuid"
 	"strings"
 	"time"
 
@@ -103,6 +104,8 @@ func (c *RefreshTokenGrantHandler) HandleTokenEndpointRequest(ctx context.Contex
 	if rtLifespan > -1 {
 		request.GetSession().SetExpiresAt(fosite.RefreshToken, time.Now().UTC().Add(rtLifespan).Round(time.Second))
 	}
+	
+	request.SetID(uuid.New())
 
 	return nil
 }
@@ -145,7 +148,6 @@ func (c *RefreshTokenGrantHandler) PopulateTokenEndpointResponse(ctx context.Con
 	}
 
 	storeReq := requester.Sanitize([]string{})
-	storeReq.SetID(ts.GetID())
 
 	if err = c.TokenRevocationStorage.CreateAccessTokenSession(ctx, accessSignature, storeReq); err != nil {
 		return err

@@ -7,8 +7,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pborman/uuid"
-
 	"github.com/ory/x/errorsx"
 
 	"github.com/pkg/errors"
@@ -53,7 +51,7 @@ func (c *OpenIDConnectRefreshHandler) HandleTokenEndpointRequest(ctx context.Con
 	sess.IDTokenClaims().ExpiresAt = time.Time{}
 
 	// These will be recomputed in PopulateTokenEndpointResponse
-	sess.IDTokenClaims().JTI = ""
+	sess.IDTokenClaims().JTI = request.GetID()
 	sess.IDTokenClaims().AccessTokenHash = ""
 
 	// We are not issuing a code so there is no need for this field.
@@ -91,7 +89,6 @@ func (c *OpenIDConnectRefreshHandler) PopulateTokenEndpointResponse(ctx context.
 	}
 
 	claims.AccessTokenHash = c.GetAccessTokenHash(ctx, requester, responder)
-	claims.JTI = uuid.New()
 	claims.CodeHash = ""
 	claims.IssuedAt = time.Now().Truncate(time.Second)
 
