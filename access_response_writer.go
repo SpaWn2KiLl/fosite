@@ -5,7 +5,6 @@ package fosite
 
 import (
 	"context"
-
 	"github.com/ory/x/errorsx"
 
 	"github.com/pkg/errors"

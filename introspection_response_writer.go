@@ -227,6 +227,9 @@ func (f *Fosite) WriteIntrospectionResponse(ctx context.Context, rw http.Respons
 	if r.GetAccessRequester().GetSession().GetUsername() != "" {
 		response["username"] = r.GetAccessRequester().GetSession().GetUsername()
 	}
+	if r.GetAccessRequester().GetSession().GetUsername() != "" {
+		response["username"] = r.GetAccessRequester().GetSession().GetUsername()
+	}
 
 	rw.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	rw.Header().Set("Cache-Control", "no-store")
