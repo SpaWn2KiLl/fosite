@@ -1,4 +1,4 @@
-// Copyright © 2023 Ory Corp
+// Copyright © 2024 Ory Corp
 // SPDX-License-Identifier: Apache-2.0
 
 package openid
@@ -6,6 +6,8 @@ package openid
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/ory/x/errorsx"
 
@@ -89,6 +91,7 @@ func (c *OpenIDConnectRefreshHandler) PopulateTokenEndpointResponse(ctx context.
 	}
 
 	claims.AccessTokenHash = c.GetAccessTokenHash(ctx, requester, responder)
+	claims.JTI = uuid.New().String()
 	claims.CodeHash = ""
 	claims.IssuedAt = time.Now().Truncate(time.Second)
 
