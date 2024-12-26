@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
+	"github.com/google/uuid"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/internal"
@@ -88,7 +89,8 @@ type StoreAuthorizeCode struct {
 }
 
 type StoreRefreshToken struct {
-	active bool
+	active               bool
+	accessTokenSignature string
 	fosite.Requester
 }
 
@@ -320,7 +322,7 @@ func (s *MemoryStore) DeleteAccessTokenSession(_ context.Context, signature stri
 	return nil
 }
 
-func (s *MemoryStore) CreateRefreshTokenSession(_ context.Context, signature string, req fosite.Requester) error {
+func (s *MemoryStore) CreateRefreshTokenSession(_ context.Context, signature, accessTokenSignature string, req fosite.Requester) error {
 	// We first lock refreshTokenRequestIDsMutex and then refreshTokensMutex because this is the same order
 	// locking happens in RevokeRefreshToken and using the same order prevents deadlocks.
 	s.refreshTokenRequestIDsMutex.Lock()
@@ -328,7 +330,7 @@ func (s *MemoryStore) CreateRefreshTokenSession(_ context.Context, signature str
 	s.refreshTokensMutex.Lock()
 	defer s.refreshTokensMutex.Unlock()
 
-	s.RefreshTokens[signature] = StoreRefreshToken{active: true, Requester: req}
+	s.RefreshTokens[signature] = StoreRefreshToken{active: true, Requester: req, accessTokenSignature: accessTokenSignature}
 	s.RefreshTokenRequestIDs[req.GetID()] = signature
 	return nil
 }
@@ -355,18 +357,18 @@ func (s *MemoryStore) DeleteRefreshTokenSession(_ context.Context, signature str
 	return nil
 }
 
-func (s *MemoryStore) Authenticate(_ context.Context, name string, secret string) error {
+func (s *MemoryStore) Authenticate(_ context.Context, name string, secret string) (subject string, err error) {
 	s.usersMutex.RLock()
 	defer s.usersMutex.RUnlock()
 
 	rel, ok := s.Users[name]
 	if !ok {
-		return fosite.ErrNotFound
+		return "", fosite.ErrNotFound
 	}
 	if rel.Password != secret {
-		return fosite.ErrNotFound.WithDebug("Invalid credentials")
+		return "", fosite.ErrNotFound.WithDebug("Invalid credentials")
 	}
-	return nil
+	return uuid.New().String(), nil
 }
 
 func (s *MemoryStore) RevokeRefreshToken(ctx context.Context, requestID string) error {
@@ -382,11 +384,6 @@ func (s *MemoryStore) RevokeRefreshToken(ctx context.Context, requestID string) 
 		s.RefreshTokens[signature] = rel
 	}
 	return nil
-}
-
-func (s *MemoryStore) RevokeRefreshTokenMaybeGracePeriod(ctx context.Context, requestID string, signature string) error {
-	// no configuration option is available; grace period is not available with memory store
-	return s.RevokeRefreshToken(ctx, requestID)
 }
 
 func (s *MemoryStore) RevokeAccessToken(ctx context.Context, requestID string) error {
@@ -495,4 +492,13 @@ func (s *MemoryStore) DeletePARSession(ctx context.Context, requestURI string) (
 
 	delete(s.PARSessions, requestURI)
 	return nil
+}
+
+func (s *MemoryStore) RotateRefreshToken(ctx context.Context, requestID string, refreshTokenSignature string) (err error) {
+	// Graceful token rotation can be implemented here but it's beyond the scope of this example. Check
+	// the Ory Hydra implementation for reference.
+	if err := s.RevokeRefreshToken(ctx, requestID); err != nil {
+		return err
+	}
+	return s.RevokeAccessToken(ctx, requestID)
 }
